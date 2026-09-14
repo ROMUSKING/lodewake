@@ -50,7 +50,7 @@ First probe cannot be a rift (relocated). Zeros flood through empty cells only â
 
 ## Incremental
 
-Resources: **scrap** (run), **isotopes** (keel fuel), **fold shards** (prestige).
+Resources: **scrap** (run), **isotopes** (keel fuel, 1 per extract), **fold shards** (prestige).
 
 Generators (exponential cost, multiplier ~1.14):
 
