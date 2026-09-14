@@ -1,0 +1,178 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,400&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Newsreader", "Times New Roman", serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --color-bg: #09090b;
+  --color-bg-elevated: #121214;
+  --color-bg-subtle: #1a1a1e;
+  --color-fg: #ecece8;
+  --color-muted: #8a8a86;
+  --color-subtle: #5c5c58;
+  --color-border: color-mix(in oklab, var(--color-fg) 12%, transparent);
+  --color-border-strong: color-mix(in oklab, var(--color-fg) 22%, transparent);
+  --color-accent: #b8c4c2;
+  --color-accent-fg: #0a0a0b;
+  --color-lode: #c4a574;
+  --color-rift: #b4544a;
+  --color-ok: #7a9a78;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  --shadow-border: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  --shadow-border-hover: 0 0 0 1px rgba(255, 255, 255, 0.13);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  html,
+  body,
+  #app {
+    min-height: 100%;
+    background: var(--color-bg);
+    color: var(--color-fg);
+  }
+  body {
+    font-family: var(--font-sans);
+  }
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+    font-family: var(--font-display);
+  }
+  p {
+    text-wrap: pretty;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  line-height: 1;
+  transition:
+    transform 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.cell:active {
+  transform: scale(0.96);
+}
+.cell-hidden {
+  background: linear-gradient(180deg, #1c1c20 0%, #141416 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 1px 0 rgba(0, 0, 0, 0.4);
+}
+.cell-hidden:hover {
+  background: linear-gradient(180deg, #242428 0%, #18181c 100%);
+}
+.cell-empty {
+  background: #0e0e10;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  color: var(--n);
+}
+.cell-lode {
+  background: color-mix(in oklab, var(--color-lode) 55%, #1a1610);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-lode) 50%, transparent);
+  color: #1a140c;
+}
+.cell-rift {
+  background: color-mix(in oklab, var(--color-rift) 45%, #12080a);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--color-rift) 40%, transparent);
+}
+.cell-flash {
+  animation: cellflash 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes cellflash {
+  0% {
+    filter: brightness(1.8);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+.n1 {
+  --n: #8aa4ad;
+}
+.n2 {
+  --n: #7a9a78;
+}
+.n3 {
+  --n: #c07068;
+}
+.n4 {
+  --n: #7a88b0;
+}
+.n5 {
+  --n: #b07050;
+}
+.n6 {
+  --n: #6a9a9a;
+}
+.n7 {
+  --n: #c8ccd4;
+}
+.n8 {
+  --n: #8a8a86;
+}
+
+.floater {
+  animation: floatup 700ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  pointer-events: none;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+@keyframes floatup {
+  from {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -18px);
+  }
+}
+
+.shaking {
+  animation: none;
+}
