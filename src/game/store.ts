@@ -16,7 +16,7 @@ import {
   starSpec,
   unmarkedHidden,
 } from "./board";
-import { foldBonus, foundryRate, genCost, shardFromRecall, starYield, weaveRegen } from "./economy";
+import { foldBonus, foundryRate, genCost, GEN_META, shardFromRecall, starYield, weaveRegen } from "./economy";
 import { computeMods, maxHull } from "./mods";
 import { SKILL_BY_ID, canBuy } from "./skills";
 import { defaultSave, loadSave, writeSave } from "./save";
@@ -99,6 +99,8 @@ type GameStore = {
   dismissFloater: (id: number) => void;
   resetAll: () => void;
   snapshot: () => SaveBlob;
+  toTitle: () => void;
+  openHelp: () => void;
 };
 
 let logSeq = 1;
@@ -176,31 +178,35 @@ export const useGame = create<GameStore>((set, get) => ({
 
   hydrate: () => {
     if (get().hydrated) return;
-    const blob = loadSave();
-    const mods = computeMods(blob.ownedSkills, blob.trueFolds, blob.skillDiscount);
-    const now = Date.now();
-    const away = Math.min(8 * 3600, Math.max(0, (now - blob.lastTick) / 1000));
-    let scrap = blob.scrap;
-    let hull = blob.hull;
-    const mh = maxHull(mods);
-    if (away > 2) {
-      const rate = foundryRate(blob.generators.foundry, blob.star, blob.sector?.lootScrap ?? 12);
-      scrap += rate * away * mods.offlineMult;
-      hull = Math.min(mh, hull + weaveRegen(blob.generators.weave, mods) * away * 0.35);
-    }
-    set({
-      ...bankFrom(blob),
-      scrap,
-      hull,
-      lastTick: now,
-      mods,
-      hydrated: true,
-      screen: "title",
-      comboT: 0,
-    });
-    setSoundEnabled(blob.settings.sound);
-    if (away > 30 && rateScrap(away, scrap - blob.scrap) ) {
-      get().pushLog("system", `The bay worked ${Math.floor(away / 60)}m without you.`);
+    try {
+      const blob = loadSave();
+      const mods = computeMods(blob.ownedSkills, blob.trueFolds, blob.skillDiscount);
+      const now = Date.now();
+      const away = Math.min(8 * 3600, Math.max(0, (now - blob.lastTick) / 1000));
+      let scrap = blob.scrap;
+      let hull = blob.hull;
+      const mh = maxHull(mods);
+      if (away > 2) {
+        const rate = foundryRate(blob.generators.foundry, blob.star, blob.sector?.lootScrap ?? 12);
+        scrap += rate * away * mods.offlineMult;
+        hull = Math.min(mh, hull + weaveRegen(blob.generators.weave, mods) * away * 0.35);
+      }
+      set({
+        ...bankFrom(blob),
+        scrap,
+        hull,
+        lastTick: now,
+        mods,
+        hydrated: true,
+        screen: "title",
+        comboT: 0,
+      });
+      setSoundEnabled(blob.settings.sound);
+      if (away > 30 && rateScrap(away, scrap - blob.scrap)) {
+        get().pushLog("system", `The bay worked ${Math.floor(away / 60)}m without you.`);
+      }
+    } catch {
+      set({ hydrated: true, screen: "title" });
     }
   },
 
@@ -284,6 +290,10 @@ export const useGame = create<GameStore>((set, get) => ({
       droneExtractT: 0,
       droneFlagT: 0,
       nextExtractCut: false,
+      hover: (() => {
+        const first = sector.cells.findIndex((c) => c.revealed && c.kind === "empty");
+        return first >= 0 ? first : 0;
+      })(),
       flash: [],
       modal: "none",
     });
@@ -390,6 +400,8 @@ export const useGame = create<GameStore>((set, get) => ({
         }
         set({ flash, heat: Math.min(s.mods.heatCap, s.heat + 2) });
         sfx.ui();
+      } else {
+        sfx.miss();
       }
       return;
     }
@@ -432,18 +444,21 @@ export const useGame = create<GameStore>((set, get) => ({
     set({ modal: "death", trauma: 1 });
     const sector = s.sector;
     if (!sector) return;
+    const clawScrap = sector.lootScrap;
+    const clawIso = sector.lootIsotopes;
     const keep = s.mods.deathKeep * (1 - s.mods.failPenalty);
-    const scrap = sector.lootScrap * keep;
-    const iso = Math.floor(sector.lootIsotopes * keep);
     set({
-      scrap: s.scrap + scrap,
-      isotopes: s.isotopes + iso,
+      scrap: Math.max(0, s.scrap - clawScrap + clawScrap * keep),
+      isotopes: Math.max(0, s.isotopes - clawIso + Math.floor(clawIso * keep)),
       hull: Math.max(1, Math.round(maxHull(s.mods) * 0.25 * s.mods.startHullFrac)),
       heat: 0,
       combo: 0,
       sector: null,
     });
-    get().pushLog("rift", keep > 0 ? "Crippled. A third of the take stayed in the bay." : "Hull zero. The lattice kept the take.");
+    get().pushLog(
+      "rift",
+      keep > 0 ? "Crippled. A third of the take stayed in the bay." : "Hull zero. The lattice kept the take.",
+    );
     queueMicrotask(() => get().persist());
   },
 
@@ -481,7 +496,7 @@ export const useGame = create<GameStore>((set, get) => ({
       scrap: s.scrap - cost,
       generators: { ...s.generators, [id]: s.generators[id] + 1 },
     });
-    get().pushLog("drone", `Commissioned ${id}`);
+    get().pushLog("drone", `Commissioned ${GEN_META[id].name}`);
     get().persist();
   },
 
@@ -503,7 +518,7 @@ export const useGame = create<GameStore>((set, get) => ({
       heat: 0,
       combo: 0,
       star: Math.max(0, Math.floor(s.star * 0.25)),
-      generators: trueFold ? { scout: 0, bees: 0, weave: 0, foundry: 0 } : { scout: 0, bees: 0, weave: 0, foundry: 0 },
+      generators: { scout: 0, bees: 0, weave: 0, foundry: 0 },
       ownedSkills: trueFold ? [] : s.ownedSkills,
       trueFolds: s.trueFolds + (trueFold ? 1 : 0),
       skillDiscount: Math.min(0.4, discount),
@@ -631,6 +646,8 @@ export const useGame = create<GameStore>((set, get) => ({
     get().persist();
   },
   dismissModal: () => set({ modal: "none" }),
+  toTitle: () => set({ screen: "title", modal: "none", panel: "none" }),
+  openHelp: () => set({ modal: "help" }),
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   dismissFloater: (id) => set((s) => ({ floaters: s.floaters.filter((f) => f.id !== id) })),
   resetAll: () => {
@@ -745,8 +762,8 @@ function extractAt(
       star: st.star + 1,
     }));
     get().pushLog("extract", s.mods.perfectTriple ? "Gilded Core. The sector paid thrice." : "Perfect lattice. Shards in the wake.");
-    set({ sector: null, lastLoot: live.lootScrap + bonus });
-    queueMicrotask(() => get().dropSector());
+    set({ lastLoot: live.lootScrap + bonus });
+    get().dropSector();
     get().persist();
   }
 }
@@ -764,7 +781,6 @@ function settleRecall(
   sfx.recall();
   set({
     shards: s.shards + shards,
-    sector: null,
     combo: 0,
     comboT: 0,
     heat: s.heat * 0.5,

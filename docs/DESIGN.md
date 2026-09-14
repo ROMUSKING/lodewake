@@ -37,10 +37,27 @@ Hobby: six interlocking double-edge trees, prestige folds, constraint chording.
 
 First probe cannot be a rift (relocated). Zeros flood through empty cells only — they never auto-extract lodes or reveal rifts.
 
-**Chord:** click a revealed mark whose adjacent extracted + lode-marked cells equal the number. Remaining neighbors probe at once.
+**Chord:** click a revealed mark whose adjacent extracted + lode-marked cells equal the number. Remaining neighbors probe at once. An unsatisfied chord ticks instead of guessing.
 
-**Recall:** cash out current loot, abandon remaining lodes.  
-**Perfect:** every lode extracted, hull > 0 → shard bonus.
+**Recall:** cash out current loot, abandon remaining lodes. Next lattice drops immediately (no folding flash).  
+**Perfect:** every lode extracted, hull > 0 → shard bonus, next lattice.
+
+**Death:** extracted loot is clawed back (the lattice keeps the take). Hull-5 (Unbreakable) returns 30% of that sector loot. “Back to helm” returns to the title, not another drop.
+
+## Controls
+
+| Input | Action |
+| --- | --- |
+| Tap / Enter / Space | Probe (extract lode, flood empty, or chord a number) |
+| Long-press / right-click / M / F | Cycle mark (lode ◆ → rift × → none) |
+| Arrows / WASD | Move cursor |
+| R | Recall |
+| 1–4 | Lattice / Keels / Bay / Codex |
+| Esc | Close panel or modal |
+| ? | Doctrine |
+| Enter (title) | Drop the lattice |
+
+Marks are glyphs, not pin dots. Keyboard cursor is a pale ring.
 
 ## Survival
 

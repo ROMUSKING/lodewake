@@ -16,18 +16,23 @@ export function setSoundEnabled(on: boolean) {
 }
 
 export function unlockAudio() {
-  if (!bus) {
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ctx = new AudioCtx({ latencyHint: "interactive" });
-    const master = ctx.createGain();
-    const sfx = ctx.createGain();
-    sfx.gain.value = 0.28;
-    master.gain.value = enabled ? 1 : 0;
-    sfx.connect(master);
-    master.connect(ctx.destination);
-    bus = { ctx, master, sfx };
+  try {
+    if (!bus) {
+      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx({ latencyHint: "interactive" });
+      const master = ctx.createGain();
+      const sfx = ctx.createGain();
+      sfx.gain.value = 0.28;
+      master.gain.value = enabled ? 1 : 0;
+      sfx.connect(master);
+      master.connect(ctx.destination);
+      bus = { ctx, master, sfx };
+    }
+    if (bus.ctx.state === "suspended") void bus.ctx.resume();
+  } catch {
+    bus = null;
   }
-  if (bus.ctx.state === "suspended") void bus.ctx.resume();
 }
 
 function tone(freq: number, dur: number, type: OscillatorType, gain = 0.2, slide = 0) {
@@ -101,5 +106,8 @@ export const sfx = {
   },
   ui() {
     tone(640, 0.04, "square", 0.04);
+  },
+  miss() {
+    tone(160, 0.07, "square", 0.05, -40);
   },
 };

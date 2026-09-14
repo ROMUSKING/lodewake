@@ -10,12 +10,11 @@ export function TitleScreen() {
   const hasWake = wake > 0 || sectors > 0 || scrap > 0;
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-hidden bg-bg text-fg">
+    <div className="relative flex min-h-screen min-h-dvh flex-col overflow-hidden bg-bg text-fg">
       <img
         src="/art/veil.jpg"
         alt=""
         className="absolute inset-0 size-full object-cover opacity-70"
-        crossOrigin="anonymous"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-bg via-bg/70 to-bg/20" />
       <div className="relative z-10 flex flex-1 flex-col justify-end px-5 pb-[max(2rem,env(safe-area-inset-bottom))] pt-16 sm:justify-center sm:px-10">
@@ -34,7 +33,7 @@ export function TitleScreen() {
               Wake {wake} · {formatNum(scrap)} scrap · {sectors} sectors
             </p>
           ) : (
-            <p className="text-sm text-subtle">Tap a plate. Extract the ore. Do not trust a quiet cell.</p>
+            <p className="text-sm text-subtle">Tap a plate. Extract the ore. Do not trust a quiet cell. Enter to drop.</p>
           )}
         </div>
       </div>

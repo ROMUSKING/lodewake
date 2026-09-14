@@ -20,6 +20,7 @@ export function Hud() {
   const panel = useGame((s) => s.panel);
   const setPanel = useGame((s) => s.setPanel);
   const recall = useGame((s) => s.recall);
+  const openHelp = useGame((s) => s.openHelp);
   const mh = maxHull(mods);
   const spec = starSpec(star, mods);
   const ratio = sector ? extractedRatio(sector) : 0;
@@ -28,19 +29,34 @@ export function Hud() {
   return (
     <header className="border-b border-border bg-bg/90 px-3 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 backdrop-blur-sm sm:px-4">
       <div className="flex items-end justify-between gap-3">
-        <div>
-          <p className="font-display text-lg leading-none tracking-tight">Lodewake</p>
-          <p className="mt-1 text-[11px] tracking-wide text-subtle uppercase">
-            Lattice {star + 1}
-            {mods.densityPreview && sector
-              ? ` · ${sector.lodeTotal} lodes · ${sector.riftTotal} rifts`
-              : ` · ${spec.w}×${spec.h}`}
-          </p>
+        <div className="flex items-end gap-2">
+          <div>
+            <p className="font-display text-lg leading-none tracking-tight">Lodewake</p>
+            <p className="mt-1 text-[11px] tracking-wide text-subtle uppercase">
+              Lattice {star + 1}
+              {mods.densityPreview && sector
+                ? ` · ${sector.lodeTotal} lodes · ${sector.riftTotal} rifts`
+                : ` · ${spec.w}×${spec.h}`}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={openHelp}
+            aria-label="Doctrine"
+            className="mb-0.5 grid size-8 place-items-center rounded-[var(--radius-sm)] text-sm text-muted hover:bg-bg-subtle hover:text-fg"
+          >
+            ?
+          </button>
         </div>
-        <div className="flex gap-3 text-right font-mono text-xs tabular-nums">
-          <Stat label="Scrap" value={formatNum(scrap)} />
-          <Stat label="Isotopes" value={formatNum(isotopes)} />
-          <Stat label="Shards" value={formatNum(shards, 1)} />
+        <div className="flex items-end gap-2">
+          <div className="flex gap-3 text-right font-mono text-xs tabular-nums">
+            <Stat label="Scrap" value={formatNum(scrap)} />
+            <Stat label="Isotopes" value={formatNum(isotopes)} />
+            <Stat label="Shards" value={formatNum(shards, 1)} />
+          </div>
+          <Button size="sm" variant="secondary" className="hidden sm:inline-flex" disabled={recallLocked} onClick={recall}>
+            Recall
+          </Button>
         </div>
       </div>
       <div className="mt-2 flex items-center gap-3">
@@ -55,7 +71,7 @@ export function Hud() {
           {sector.lodeTotal - sector.lodeLeft}/{sector.lodeTotal} extracted
         </p>
       ) : null}
-      <nav className="mt-2 hidden gap-1 sm:flex">
+      <nav className="mt-2 hidden gap-1 lg:flex">
         <NavBtn active={panel === "none"} onClick={() => setPanel("none")} icon={<Radar className="size-3.5" />}>
           Lattice
         </NavBtn>
@@ -68,13 +84,10 @@ export function Hud() {
         <NavBtn active={panel === "codex"} onClick={() => setPanel("codex")} icon={<Orbit className="size-3.5" />}>
           Codex
         </NavBtn>
-        <Button size="sm" variant="secondary" className="ml-auto" disabled={recallLocked} onClick={recall}>
-          Recall
-        </Button>
       </nav>
-      <div className="mt-2 hidden text-[11px] text-subtle sm:flex sm:gap-4">
-        <span className="inline-flex items-center gap-1"><Gem className="size-3 text-lode" /> Tap hidden lode to extract</span>
-        <span className="inline-flex items-center gap-1"><Shield className="size-3 text-rift" /> Long-press / right-click to mark</span>
+      <div className="mt-2 hidden text-[11px] text-subtle lg:flex lg:gap-4">
+        <span className="inline-flex items-center gap-1"><Gem className="size-3 text-lode" /> Enter / tap hidden lode to extract</span>
+        <span className="inline-flex items-center gap-1"><Shield className="size-3 text-rift" /> M or right-click to mark · ? help</span>
       </div>
     </header>
   );

@@ -29,7 +29,7 @@ export const Route = createRootRoute({
       <head>
         <HeadContent />
       </head>
-      <body className="bg-bg text-fg">
+      <body className="bg-bg text-fg" style={{ background: "#09090b", color: "#ecece8" }}>
         <PreviewHostBridge />
         <AuthProvider>
           <Outlet />

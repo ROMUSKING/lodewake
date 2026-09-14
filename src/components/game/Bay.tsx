@@ -3,6 +3,7 @@ import { GEN_META, genCost } from "@/game/economy";
 import { formatNum } from "@/game/format";
 import { useGame } from "@/game/store";
 import type { GeneratorId } from "@/game/types";
+import { cn } from "@/lib/utils";
 
 const ORDER: GeneratorId[] = ["scout", "bees", "weave", "foundry"];
 
@@ -62,10 +63,11 @@ export function Bay() {
           Fold the wake
         </Button>
         {owned.includes("fold-3") ? (
-          <label className="mt-3 flex items-center justify-between text-sm">
-            Next drop skips a star
-            <input type="checkbox" checked={skipStar} onChange={(e) => setSkip(e.target.checked)} />
-          </label>
+          <Toggle
+            label="Next drop skips a star"
+            checked={skipStar}
+            onChange={setSkip}
+          />
         ) : null}
       </section>
 
@@ -83,34 +85,52 @@ export function Bay() {
 
       <section className="space-y-2 pb-4">
         <h2 className="font-display text-xl">Helm</h2>
-        <label className="flex items-center justify-between text-sm">
-          Screen shake
-          <input
-            type="checkbox"
-            checked={settings.shake}
-            onChange={(e) => setSetting("shake", e.target.checked)}
-          />
-        </label>
-        <label className="flex items-center justify-between text-sm">
-          Sound
-          <input
-            type="checkbox"
-            checked={settings.sound}
-            onChange={(e) => setSetting("sound", e.target.checked)}
-          />
-        </label>
-        <label className="flex items-center justify-between text-sm">
-          Reduced motion
-          <input
-            type="checkbox"
-            checked={settings.reducedMotion}
-            onChange={(e) => setSetting("reducedMotion", e.target.checked)}
-          />
-        </label>
+        <Toggle label="Screen shake" checked={settings.shake} onChange={(v) => setSetting("shake", v)} />
+        <Toggle label="Sound" checked={settings.sound} onChange={(v) => setSetting("sound", v)} />
+        <Toggle
+          label="Reduced motion"
+          checked={settings.reducedMotion}
+          onChange={(v) => setSetting("reducedMotion", v)}
+        />
         <Button variant="ghost" size="sm" onClick={resetAll}>
           New license
         </Button>
       </section>
     </div>
+  );
+}
+
+function Toggle({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={() => onChange(!checked)}
+      className="flex min-h-11 w-full items-center justify-between gap-3 text-sm text-fg"
+    >
+      {label}
+      <span
+        className={cn(
+          "relative h-6 w-10 shrink-0 rounded-full p-0.5",
+          checked ? "bg-accent" : "bg-bg-subtle shadow-[var(--shadow-border)]",
+        )}
+      >
+        <span
+          className={cn(
+            "block size-5 rounded-full transition-transform duration-150 ease-[cubic-bezier(0.22,1,0.36,1)]",
+            checked ? "translate-x-4 bg-accent-fg" : "translate-x-0 bg-muted",
+          )}
+        />
+      </span>
+    </button>
   );
 }

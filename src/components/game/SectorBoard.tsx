@@ -72,11 +72,12 @@ export function SectorBoard() {
               type="button"
               aria-label={label}
               className={cn(
-                "cell aspect-square min-h-8 w-full min-w-0 text-[11px] sm:min-h-10 sm:text-sm",
+                "cell aspect-square min-h-0 w-full min-w-0 text-[11px] sm:text-sm",
                 cls,
                 nClass,
                 flash.includes(at) && "cell-flash",
                 highlight.has(at) && "ring-1 ring-accent/50",
+                hover === at && "cell-cursor",
               )}
               onPointerDown={(e) => {
                 if (e.pointerType === "touch") {
@@ -105,10 +106,10 @@ export function SectorBoard() {
             >
               {cell.revealed && cell.kind === "empty" && cell.shown > 0 ? cell.shown : null}
               {!cell.revealed && cell.mark === "lode" ? (
-                <span className="absolute top-0.5 right-0.5 size-1.5 rounded-full bg-lode" />
+                <span className="pointer-events-none text-[10px] leading-none text-lode sm:text-xs">◆</span>
               ) : null}
               {!cell.revealed && cell.mark === "rift" ? (
-                <span className="absolute top-0.5 right-0.5 size-1.5 rounded-full bg-rift" />
+                <span className="pointer-events-none text-[11px] leading-none text-rift sm:text-sm">×</span>
               ) : null}
               {mods.ghostRiftHint && cell.revealed && cell.kind === "empty" && cell.adjRifts > 0 ? (
                 <span className="absolute bottom-0.5 left-0.5 size-1 rounded-full bg-rift/70" />
